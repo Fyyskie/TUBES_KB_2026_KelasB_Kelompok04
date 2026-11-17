@@ -1,37 +1,51 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import joblib
 from tensorflow.keras.models import load_model
-import numpy as np
 
 st.set_page_config(page_title="Gas Turbine Emission Dashboard", layout="wide")
 st.title("Gas Turbine Emission Intelligence System")
 st.write("Sistem prediksi emisi CO dan NOx terintegrasi. (Versi Beta)")
 
-tab1, tab2, tab3, tab4 = st.tabs(["Dataset Explorer", "GA & PSO Optimization", "Neural Network & Fuzzy", "Prediction/Simulation"])
+# Memisahkan tab menjadi 5 bagian sesuai target mingguan
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "Dataset Explorer", 
+    "Genetic Algorithm (Minggu 13)", 
+    "PSO Optimization (Minggu 14)", 
+    "NN & Fuzzy (Minggu 12 & 15)", 
+    "Prediction/Simulation"
+])
 
 with tab1:
     st.header("Eksplorasi Dataset")
-    st.write("Berikut adalah cuplikan data parameter operasional turbin gas:")
-    
     try:
-        # Membaca file CSV yang sudah diunggah ke GitHub
-        df = pd.read_csv("data_turbin.csv")
-        
-        # Menampilkan tabel data yang bisa di-scroll
+        df = pd.read_csv("data_turbin.csv") 
         st.dataframe(df)
-        
-        # Menampilkan statistik deskriptif dasar
-        st.subheader("Statistik Dataset")
         st.write(df.describe())
     except FileNotFoundError:
-        st.error("File data_turbin.csv belum ditemukan di repository.")
+        st.warning("File dataset (data_turbin.csv) belum diunggah.")
 
 with tab2:
-    st.write("Halaman parameter algoritma genetika dan PSO akan muncul di sini.")
+    st.header("Seleksi Fitur: Genetic Algorithm")
+    st.write("Hasil reduksi dimensi dan metrik evaluasi subset fitur terbaik dari proses evolusi GA akan ditampilkan di sini.")
+
 with tab3:
-    st.write("Halaman arsitektur model dan aturan Fuzzy akan muncul di sini.")
+    st.header("Optimasi Hyperparameter: PSO")
+    st.write("Hasil pencarian parameter learning rate dan neuron optimal untuk Neural Network akan ditampilkan di sini.")
+
 with tab4:
+    st.header("Arsitektur Baseline Neural Network")
+    st.code('''
+    Model: Multi-Layer Perceptron (MLP) Multi-Output
+    - Input Layer: Menyesuaikan hasil GA
+    - Hidden Layers: 64, 32, 16 (ReLU)
+    - Output Layer: 2 (Linear) untuk Prediksi CO & NOx
+    ''')
+    st.subheader("Sistem Keputusan Fuzzy Logic")
+    st.info("Implementasi penentuan status emisi menggunakan Fuzzy Takagi-Sugeno-Kang dijadwalkan pada Minggu 15.")
+
+with tab5:
     st.header("Simulasi Prediksi Emisi (Baseline NN)")
     
     try:
@@ -40,25 +54,40 @@ with tab4:
         scaler_y = joblib.load('scaler_y.pkl')
         model = load_model('baseline_model.h5')
         
-        # Contoh input manual sederhana (hanya untuk tes)
-        st.write("Masukkan nilai sensor simulasi:")
-        input_AT = st.number_input("Ambient Temperature (AT)", value=15.0)
-        input_AP = st.number_input("Ambient Pressure (AP)", value=1013.0)
-        # ... (Tambahkan input lain sesuai jumlah fitur Anda) ...
+        st.write("Masukkan nilai operasional turbin gas (9 parameter):")
         
-        if st.button("Prediksi Emisi"):
-            # Proses input, scaling, dan prediksi
-            # (Pastikan array input disesuaikan dengan jumlah kolom fitur asli Anda)
-            input_array = np.zeros((1, 9)) # Contoh jika ada 9 fitur
-            input_array[0, 0] = input_AT
-            input_array[0, 1] = input_AP
+        # Membuat 3 kolom agar form input terlihat rapi di layar
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            input_AT = st.number_input("Ambient Temp (AT)", value=15.0)
+            input_AP = st.number_input("Ambient Pressure (AP)", value=1013.0)
+            input_AH = st.number_input("Ambient Humidity (AH)", value=60.0)
+        with col2:
+            input_AFDP = st.number_input("Air Filter Diff Pressure (AFDP)", value=4.0)
+            input_GTEP = st.number_input("Gas Turbine Exh Pressure (GTEP)", value=24.0)
+            input_TIT = st.number_input("Turbine Inlet Temp (TIT)", value=1080.0)
+        with col3:
+            input_TAT = st.number_input("Turbine After Temp (TAT)", value=550.0)
+            input_TEY = st.number_input("Turbine Energy Yield (TEY)", value=130.0)
+            input_CDP = st.number_input("Compressor Discharge Press (CDP)", value=12.0)
+        
+        # Tombol eksekusi
+        if st.button("Prediksi Emisi", type="primary"):
+            # Menyusun data input sesuai urutan pelatihan di dataset UCI
+            input_array = np.array([[input_AT, input_AP, input_AH, input_AFDP, input_GTEP, input_TIT, input_TAT, input_TEY, input_CDP]])
             
+            # Proses scaling -> prediksi NN -> inverse scaling ke nilai asli
             input_scaled = scaler_X.transform(input_array)
             pred_scaled = model.predict(input_scaled)
             pred_asli = scaler_y.inverse_transform(pred_scaled)
             
-            st.success(f"Prediksi CO: {pred_asli[0][0]:.4f}")
-            st.error(f"Prediksi NOx: {pred_asli[0][1]:.4f}")
-            
+            st.markdown("### Hasil Prediksi:")
+            res_col1, res_col2 = st.columns(2)
+            with res_col1:
+                st.success(f"Karbon Monoksida (CO): {pred_asli[0][0]:.4f} mg/m³")
+            with res_col2:
+                st.error(f"Nitrogen Oksida (NOx): {pred_asli[0][1]:.4f} mg/m³")
+                
     except Exception as e:
-        st.warning("Model belum diunggah atau ada kesalahan format input.")
+        st.warning("Silakan unggah model (baseline_model.h5) dan scaler (scaler_X.pkl, scaler_y.pkl) terlebih dahulu agar simulasi berjalan.")
+        st.error(f"Detail error dari sistem: {e}")
