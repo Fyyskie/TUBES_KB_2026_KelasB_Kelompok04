@@ -8,12 +8,13 @@ st.set_page_config(page_title="Gas Turbine Emission Dashboard", layout="wide")
 st.title("Gas Turbine Emission Intelligence System")
 st.write("Sistem prediksi emisi CO dan NOx terintegrasi. (Versi Beta)")
 
-# Memisahkan tab menjadi 5 bagian sesuai target mingguan
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+# Memisahkan tab menjadi 6 bagian berurutan sesuai target mingguan
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "Dataset Explorer", 
+    "Baseline NN (Minggu 12)",
     "Genetic Algorithm (Minggu 13)", 
     "PSO Optimization (Minggu 14)", 
-    "NN & Fuzzy (Minggu 12 & 15)", 
+    "Fuzzy Logic (Minggu 15)", 
     "Prediction/Simulation"
 ])
 
@@ -27,36 +28,38 @@ with tab1:
         st.warning("File dataset (data_turbin.csv) belum diunggah.")
 
 with tab2:
+    st.header("Arsitektur Baseline Neural Network")
+    st.write("Model dasar sebelum dilakukan seleksi fitur dan optimasi hyperparameter.")
+    st.code('''
+    Model: Multi-Layer Perceptron (MLP) Multi-Output
+    - Input Layer: 9 Fitur Sensor Operasional
+    - Hidden Layers: 64, 32, 16 (Aktivasi: ReLU)
+    - Output Layer: 2 (Aktivasi: Linear) untuk Prediksi CO & NOx
+    Optimizer: Adam | Loss Function: MSE
+    ''')
+
+with tab3:
     st.header("Seleksi Fitur: Genetic Algorithm")
     st.write("Hasil reduksi dimensi dan metrik evaluasi subset fitur terbaik dari proses evolusi GA akan ditampilkan di sini.")
 
-with tab3:
-    st.header("Optimasi Hyperparameter: PSO")
-    st.write("Hasil pencarian parameter learning rate dan neuron optimal untuk Neural Network akan ditampilkan di sini.")
-
 with tab4:
-    st.header("Arsitektur Baseline Neural Network")
-    st.code('''
-    Model: Multi-Layer Perceptron (MLP) Multi-Output
-    - Input Layer: Menyesuaikan hasil GA
-    - Hidden Layers: 64, 32, 16 (ReLU)
-    - Output Layer: 2 (Linear) untuk Prediksi CO & NOx
-    ''')
-    st.subheader("Sistem Keputusan Fuzzy Logic")
-    st.info("Implementasi penentuan status emisi menggunakan Fuzzy Takagi-Sugeno-Kang dijadwalkan pada Minggu 15.")
+    st.header("Optimasi Hyperparameter: PSO")
+    st.write("Hasil pencarian parameter learning rate dan jumlah neuron optimal untuk Neural Network akan ditampilkan di sini.")
 
 with tab5:
+    st.header("Sistem Keputusan Fuzzy Logic")
+    st.info("Implementasi penentuan status risiko emisi (Safe - Moderate - High - Critical) menggunakan logika Fuzzy Takagi-Sugeno-Kang dijadwalkan pada Minggu 15.")
+
+with tab6:
     st.header("Simulasi Prediksi Emisi (Baseline NN)")
     
     try:
-        # Memuat scaler dan model
         scaler_X = joblib.load('scaler_X.pkl')
         scaler_y = joblib.load('scaler_y.pkl')
         model = load_model('baseline_model.h5')
         
         st.write("Masukkan nilai operasional turbin gas (9 parameter):")
         
-        # Membuat 3 kolom agar form input terlihat rapi di layar
         col1, col2, col3 = st.columns(3)
         with col1:
             input_AT = st.number_input("Ambient Temp (AT)", value=15.0)
@@ -71,12 +74,9 @@ with tab5:
             input_TEY = st.number_input("Turbine Energy Yield (TEY)", value=130.0)
             input_CDP = st.number_input("Compressor Discharge Press (CDP)", value=12.0)
         
-        # Tombol eksekusi
         if st.button("Prediksi Emisi", type="primary"):
-            # Menyusun data input sesuai urutan pelatihan di dataset UCI
             input_array = np.array([[input_AT, input_AP, input_AH, input_AFDP, input_GTEP, input_TIT, input_TAT, input_TEY, input_CDP]])
             
-            # Proses scaling -> prediksi NN -> inverse scaling ke nilai asli
             input_scaled = scaler_X.transform(input_array)
             pred_scaled = model.predict(input_scaled)
             pred_asli = scaler_y.inverse_transform(pred_scaled)
