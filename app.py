@@ -54,9 +54,9 @@ with tab6:
     st.header("Simulasi Prediksi Emisi (Baseline NN)")
     
     try:
-        scaler_X = joblib.load('scaler_X.pkl')
-        scaler_y = joblib.load('scaler_y.pkl')
-        model = load_model('baseline_model.h5')
+        scaler_X = joblib.load('W12_EDA_BASELINE_NN/scaler_X.pkl')
+        scaler_y = joblib.load('W12_EDA_BASELINE_NN/scaler_y.pkl')
+        model = load_model('W12_EDA_BASELINE_NN/baseline_model.h5')
         
         st.write("Masukkan nilai operasional turbin gas (9 parameter):")
         
