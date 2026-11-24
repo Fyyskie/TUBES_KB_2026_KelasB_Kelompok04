@@ -92,7 +92,7 @@ with tab3:
     # 3. Tabel Bukti Multi-Seed
     st.divider()
     st.subheader("3. Hasil Eksperimen Multi-Seed")
-   df_seeds = pd.DataFrame({
+    df_seeds = pd.DataFrame({
         "Seed": [15, 1, 16, 91],
         "Jumlah Fitur": [6, 7, 6, 7],
         "Fitur Terpilih": [
