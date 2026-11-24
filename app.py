@@ -19,18 +19,30 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 ])
 
 with tab1:
-    st.header("Exploratory Data Analysis (EDA)")
-    st.divider()
-    st.subheader("Visualisasi Distribusi & Korelasi (Minggu 12)")
-    col1, col2 = st.columns(2)
+    st.header("Dataset Gas Turbine Emission")
+    df = pd.read_csv("data_turbin.csv")
     
+    col_info1, col_info2 = st.columns(2)
+    col_info1.metric("Jumlah Baris (Sampel)", f"{df.shape[0]:,}")
+    col_info2.metric("Jumlah Kolom (Sensor & Target)", df.shape[1])
+    
+    st.subheader("Pratinjau Data (10 Baris Pertama)")
+    st.dataframe(df.head(10), use_container_width=True)
+    
+    with st.expander("Lihat Statistik Deskriptif Dataset"):
+        st.dataframe(df.describe(), use_container_width=True)
+
+with tab2:
+    st.header("Progres Minggu 12: EDA & Baseline Neural Network")
+    
+    st.subheader("1. Visualisasi Distribusi & Korelasi")
+    col1, col2 = st.columns(2)
     with col1:
         st.image(
             "W12_EDA_BASELINE_NN_KEL4/distribusi_emisi_(NOX&CO).png",
             caption="Distribusi Emisi Gas Turbin (CO & NOx)",
             use_container_width=True
         )
-        
     with col2:
         st.image(
             "W12_EDA_BASELINE_NN_KEL4/matriks_korelasi sensor dan terget emisi.png",
@@ -38,10 +50,8 @@ with tab1:
             use_container_width=True
         )
         
-with tab2:
-    st.header("Baseline Neural Network (9 Fitur)")
     st.divider()
-    st.subheader("Evaluasi & Kurva Pelatihan Baseline NN")
+    st.subheader("2. Evaluasi & Kurva Pelatihan Baseline NN (9 Fitur)")
     st.image(
         "W12_EDA_BASELINE_NN_KEL4/basline_NN.png",
         caption="Kurva Loss Pelatihan Baseline NN (9 Fitur)",
