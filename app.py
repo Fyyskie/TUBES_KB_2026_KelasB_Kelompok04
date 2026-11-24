@@ -70,7 +70,7 @@ with tab3:
     col_ga1, col_ga2, col_ga3 = st.columns(3)
     col_ga1.metric("Fitur Awal (Baseline)", "9 Sensor")
     col_ga2.metric("Fitur Terpilih (GA)", "7 Sensor", delta="-2 Sensor")
-    col_ga3.metric("Sensor Dieliminasi", "GTEP, CDP")
+    col_ga3.metric("Sensor Dieliminasi", "TEY, CDP")
 
     # 2. Visualisasi Grafik GA
     st.divider()
@@ -92,16 +92,17 @@ with tab3:
     # 3. Tabel Bukti Multi-Seed
     st.divider()
     st.subheader("3. Hasil Eksperimen Multi-Seed")
-    df_seeds = pd.DataFrame({
+   df_seeds = pd.DataFrame({
         "Seed": [15, 1, 16, 91],
-        "Jumlah Fitur": [6, 7, 7],
+        "Jumlah Fitur": [6, 7, 6, 7],
         "Fitur Terpilih": [
-            "AT, AP, AH, TIT, TAT, TEY",
-            "AT, AP, AH, AFDP, TIT, TAT, TEY",
-            "AT, AP, AH, AFDP, TIT, TAT, CDP"
+            "AT, AP, AFDP, TIT, TAT, CDP",
+            "AT, AH, AFDP, TIT, TAT, TEY, CDP",
+            "AT, AH, AFDP, TIT, TAT, TEY",
+            "AT, AP, AH, AFDP, GTEP, TIT, TAT"
         ],
-        "Best Fitness": [0.80455, 0.81280, 0.80853],
-        "Val MSE": [0.23626, 0.22253, 0.22903]
+        "Best Fitness": [0.79717, 0.80914, 0.80782, 0.80971],
+        "Val MSE": [0.24778, 0.22810, 0.23123, 0.22724]
     })
     st.dataframe(df_seeds, use_container_width=True, hide_index=True)
 
