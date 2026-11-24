@@ -59,8 +59,65 @@ with tab2:
     )
 
 with tab3:
-    st.header("Seleksi Fitur: Genetic Algorithm")
-    st.write("Hasil reduksi dimensi dan metrik evaluasi subset fitur terbaik dari proses evolusi GA akan ditampilkan di sini.")
+    st.header("Progres Minggu 13: Seleksi Fitur (Genetic Algorithm)")
+    st.write(
+        "Implementasi Algoritma Genetika (GA) untuk mereduksi jumlah fitur sensor gas turbin "
+        "menggunakan evaluasi Validation Set (bebas kebocoran Test Set) dan pengujian multi-seed."
+    )
+
+    # 1. Konfigurasi & Ringkasan Fitur Terpilih
+    st.subheader("1. Konfigurasi GA & Fitur Terpilih")
+    col_ga1, col_ga2, col_ga3 = st.columns(3)
+    col_ga1.metric("Fitur Awal (Baseline)", "9 Sensor")
+    col_ga2.metric("Fitur Terpilih (GA)", "7 Sensor", delta="-2 Sensor")
+    col_ga3.metric("Sensor Dieliminasi", "GTEP, CDP")
+
+    # 2. Visualisasi Grafik GA
+    st.divider()
+    st.subheader("2. Kurva Konvergensi & Perbandingan Performa")
+    col_img1, col_img2 = st.columns(2)
+    with col_img1:
+        st.image(
+            "W13_GA_FEATURE_SELECTION_KEL4/ga_convergence.png",
+            caption="Kurva Konvergensi Fitness GA (Best vs Average)",
+            use_container_width=True
+        )
+    with col_img2:
+        st.image(
+            "W13_GA_FEATURE_SELECTION_KEL4/ga_vs_baseline.png",
+            caption="Perbandingan Akurasi (R²) & Waktu Pelatihan: Baseline NN vs GA+NN",
+            use_container_width=True
+        )
+
+    # 3. Tabel Bukti Multi-Seed
+    st.divider()
+    st.subheader("3. Hasil Eksperimen Multi-Seed")
+    df_seeds = pd.DataFrame({
+        "Seed": [42, 100, 2026],
+        "Jumlah Fitur": [6, 7, 7],
+        "Fitur Terpilih": [
+            "AT, AP, AH, TIT, TAT, TEY",
+            "AT, AP, AH, AFDP, TIT, TAT, TEY",
+            "AT, AP, AH, AFDP, TIT, TAT, CDP"
+        ],
+        "Best Fitness": [0.80455, 0.81280, 0.80853],
+        "Val MSE": [0.23626, 0.22253, 0.22903]
+    })
+    st.dataframe(df_seeds, use_container_width=True, hide_index=True)
+
+    # 4. Tabel Perbandingan Baseline NN vs GA+NN
+    st.subheader("4. Tabel Perbandingan: Baseline NN vs GA + NN")
+    df_comp = pd.DataFrame({
+        "Model": ["Baseline NN (9 Fitur)", "GA + NN (7 Fitur)"],
+        "Jumlah Fitur": [9, 7],
+        "Waktu Latih (detik)": [90.62, 85.55],
+        "Val Loss (MSE)": [0.1697, 0.1740],
+        "CO RMSE": [1.1451, 1.1369],
+        "CO R²": [0.7588, 0.7623],
+        "NOx RMSE": [4.1992, 4.5756],
+        "NOx R²": [0.8669, 0.8420]
+    })
+    st.dataframe(df_comp, use_container_width=True, hide_index=True)
 
 with tab4:
     st.header("Optimasi Hyperparameter: PSO")
