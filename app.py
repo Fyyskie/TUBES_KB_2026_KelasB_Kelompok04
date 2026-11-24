@@ -19,24 +19,34 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 ])
 
 with tab1:
-    st.header("Eksplorasi Dataset")
-    try:
-        df = pd.read_csv("data_turbin.csv") 
-        st.dataframe(df)
-        st.write(df.describe())
-    except FileNotFoundError:
-        st.warning("File dataset (data_turbin.csv) belum diunggah.")
-
+    st.header("Exploratory Data Analysis (EDA)")
+    st.divider()
+    st.subheader("Visualisasi Distribusi & Korelasi (Minggu 12)")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.image(
+            "W12_EDA_BASELINE_NN_KEL4/distribusi_emisi_(NOX&CO).png",
+            caption="Distribusi Emisi Gas Turbin (CO & NOx)",
+            use_container_width=True
+        )
+        
+    with col2:
+        st.image(
+            "W12_EDA_BASELINE_NN_KEL4/matriks_korelasi sensor dan terget emisi.png",
+            caption="Matriks Korelasi Sensor dan Target Emisi",
+            use_container_width=True
+        )
+        
 with tab2:
-    st.header("Arsitektur Baseline Neural Network")
-    st.write("Model dasar sebelum dilakukan seleksi fitur dan optimasi hyperparameter.")
-    st.code('''
-    Model: Multi-Layer Perceptron (MLP) Multi-Output
-    - Input Layer: 9 Fitur Sensor Operasional
-    - Hidden Layers: 64, 32, 16 (Aktivasi: ReLU)
-    - Output Layer: 2 (Aktivasi: Linear) untuk Prediksi CO & NOx
-    Optimizer: Adam | Loss Function: MSE
-    ''')
+    st.header("Baseline Neural Network (9 Fitur)")
+    st.divider()
+    st.subheader("Evaluasi & Kurva Pelatihan Baseline NN")
+    st.image(
+        "W12_EDA_BASELINE_NN_KEL4/basline_NN.png",
+        caption="Kurva Loss Pelatihan Baseline NN (9 Fitur)",
+        use_container_width=True
+    )
 
 with tab3:
     st.header("Seleksi Fitur: Genetic Algorithm")
