@@ -93,7 +93,7 @@ with tab3:
     st.divider()
     st.subheader("3. Hasil Eksperimen Multi-Seed")
     df_seeds = pd.DataFrame({
-        "Seed": [42, 100, 2026],
+        "Seed": [15, 1, 16, 91],
         "Jumlah Fitur": [6, 7, 7],
         "Fitur Terpilih": [
             "AT, AP, AH, TIT, TAT, TEY",
